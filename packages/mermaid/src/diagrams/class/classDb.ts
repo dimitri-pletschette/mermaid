@@ -29,7 +29,7 @@ const MERMAID_DOM_ID_PREFIX = 'classId-';
 
 let relations: ClassRelation[] = [];
 let classes = new Map<string, ClassNode>();
-const styleClasses = new Map<string, StyleClass>();
+let styleClasses = new Map<string, StyleClass>();
 let notes: ClassNote[] = [];
 let interfaces: Interface[] = [];
 let classCounter = 0;
@@ -126,6 +126,7 @@ export const lookUpDomId = function (_id: string): string {
 export const clear = function () {
   relations = [];
   classes = new Map();
+  styleClasses = new Map();
   notes = [];
   interfaces = [];
   functions = [];
@@ -285,6 +286,7 @@ export const setCssClass = function (ids: string, className: string) {
 };
 
 export const defineClass = function (ids: string[], style: string[]) {
+  const styles = style.flatMap((s) => s.split(','));
   for (const id of ids) {
     let styleClass = styleClasses.get(id);
     if (styleClass === undefined) {
@@ -292,8 +294,8 @@ export const defineClass = function (ids: string[], style: string[]) {
       styleClasses.set(id, styleClass);
     }
 
-    if (style) {
-      style.forEach(function (s) {
+    if (styles.length > 0) {
+      styles.forEach(function (s: string) {
         if (/color/.exec(s)) {
           const newStyle = s.replace('fill', 'bgFill'); // .replace('color', 'fill');
           styleClass.textStyles.push(newStyle);
@@ -578,6 +580,10 @@ function getArrowMarker(type: number) {
   return marker;
 }
 
+export const getClassDefs = () => {
+  return styleClasses;
+};
+
 export const getData = () => {
   const nodes: Node[] = [];
   const edges: Edge[] = [];
@@ -732,5 +738,6 @@ export default {
   getNamespace,
   getNamespaces,
   setCssStyle,
+  getClassDefs,
   getData,
 };
